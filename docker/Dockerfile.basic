@@ -1,0 +1,74 @@
+# FireAgentSpace Basic Image
+# Based on Ubuntu 24.04 with Python3, Node.js and development tools
+
+FROM ubuntu:24.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# Update sources to use faster mirrors (aliyun)
+RUN sed -i 's@archive.ubuntu.com@mirrors.aliyun.com@g' /etc/apt/sources.list.d/ubuntu.sources && \
+    sed -i 's@security.ubuntu.com@mirrors.aliyun.com@g' /etc/apt/sources.list.d/ubuntu.sources
+
+# Update package lists and install basic dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    vim \
+    nano \
+    build-essential \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python 3 and pip
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js LTS (using NodeSource repository)
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create Python virtual environment for data analysis
+RUN python3 -m venv /opt/venv
+
+# Activate venv and install data analysis packages
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python data analysis packages
+RUN pip3 install --no-cache-dir \
+    jupyter \
+    jupyterlab \
+    pandas \
+    numpy \
+    matplotlib \
+    seaborn \
+    scipy \
+    scikit-learn \
+    plotly \
+    ipywidgets
+
+# Install code-server (VS Code in browser) for web development suite
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Create workspace directory
+RUN mkdir -p /workspace
+WORKDIR /workspace
+
+# Expose common ports
+EXPOSE 8080 8888
+
+# Set default shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Keep container running by default
+CMD ["/bin/bash"]

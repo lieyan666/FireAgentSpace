@@ -137,3 +137,8 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# FireAgentSpace specific
+data/workspaces/
+data/db.json
+!data/db.json.example
